@@ -1,0 +1,43 @@
+<html>
+  
+        <script type="text/javascript" src="app.js"></script>
+    <body>
+        <h1> Auto-Dj</h1>
+            <button onclick="authorize()" class="login" type="button">Admin-Login</button>
+            <button onclick="printTracks()" class="login" type="button">PRINT TRACKS</button>
+
+
+
+    </body>
+<script src="https://connect.soundcloud.com/sdk/sdk-3.0.0.js"></script>
+<script>
+
+
+
+function  printTracks() {
+SC.initialize({
+  client_id: '23fc1bb316b1cdec30633baa077b95e2'
+});
+
+SC.get('/playlists/49022509').then(function(playlist) {
+  playlist.tracks.forEach(function(track) {
+    console.log(track.title);
+  });
+});
+    }
+
+function authorize() {
+SC.initialize({
+  client_id: '23fc1bb316b1cdec30633baa077b95e2',
+  redirect_uri: 'https://soundcloud.com/you/sets'
+});
+
+// initiate auth popup
+SC.connect().then(function() {
+  return SC.get('/me');
+}).then(function(me) {
+  alert('Hello, ' + me.username);
+});
+}
+</script>
+</html>

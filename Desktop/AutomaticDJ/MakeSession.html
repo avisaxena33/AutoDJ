@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link href='https://fonts.googleapis.com/css?family=Raleway:500' rel='stylesheet' type='text/css'>
+  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <title>Auto-DJ</title>
+    <style>
+        p.hidden{
+            display: none;
+        }
+        p.visible{
+            display: block;
+        }
+ </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="api.js"></script>
+    <script src="https://connect.soundcloud.com/sdk/sdk-3.0.0.js"></script>
+
+    <script type="text/JavaScript">
+
+        var MoreCode;
+		var Code = "code=";
+		var HostName = "DJName=";
+        var HostId = "djId="
+        var Playlist;
+		var DataSend;
+        var trackList;
+        var storeAvi;
+        var firstpart;
+        var SecondPart;
+        var VoteCount = [];
+        var das
+        var sad//Index of the largest value
+        var SongNames = ['Stay','Red Lights',"Gold","missing u","8 Bit Adventure"]//Hard Codded
+        var Robbie = 0;
+        var ActualSong = ['henry-krinkle/stay','tiesto/tiesto-redlights-wav','kiiaraonline/gold','soundremedy/missing-u','adhesivewombat-8-bit-adventure']
+        ActualSong[sad]
+        
+        
+		function submitName()//Remind myself to make an if else statement to make them login before proceeding
+		{
+			document.getElementById("GI").className = "visible";
+			HostName = HostName + document.getElementById("enterName").value;
+            authorize();//Need to implement somenthing if soundcloud account is not logged into
+            getCode();
+			genCode();
+			document.getElementById("roomName").className = "hidden";
+			document.getElementById("accessCode").className = "visible";
+            document.getElementById("widget").className = "visible";
+            playSong();
+			DataSend = Code+"&&"+HostName+"&&"+HostId+"Initializing";
+            //alert(DataSend)
+			httpPost("http://localhost:8080/",DataSend)
+            //GetThings();
+		}
+
+
+
+		function genCode() {
+            document.getElementById('accessCode').innerHTML = 'Access Code : ' + MoreCode;
+        }
+        
+        function GetThings()
+        {
+            //alert("Testqwe")
+        setInterval(function(){httpGet('http://localhost:8080/'); console.log("Woah")},15000)
+        }
+        
+        
+		//Figure out how to store data
+    function httpGet(theUrl){
+	//document.write(theUrl);
+    var xmlHttp = null;
+    xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", theUrl, false);
+    xmlHttp.send(null);
+    storeAvi=xmlHttp.responseText;
+    var pos = storeAvi.search("&&");
+    firstpart = storeAvi.slice(0,pos);
+    SecondPart = storeAvi.slice(pos+2, storeAvi.length);
+    pos = firstpart.search("=");
+    firstpart = firstpart.slice(pos+1,firstpart.length);
+    pos = SecondPart.search("=");
+    SecondPart = SecondPart.slice(pos+1,SecondPart.length);
+    for(i=0;i<5;i++)//Hard Coded
+        {
+            var pos = firstpart.search(",");
+            if(i==4){
+                VoteCount[i] = parseInt(firstpart);
+            }else{
+            VoteCount[i] = parseInt(firstpart.slice(0,pos))
+            if(i==4){
+                    firstpart = firstpart.slice(pos,firstpart.length);
+                    }else{
+            firstpart = firstpart.slice(pos+1,firstpart.length);
+                    }
+        }
+        }
+        var largest = 0;
+        for(i=0;i<5;i++)
+        {
+            if(VoteCount[i]>largest) {
+                largest=VoteCount[i];
+            }
+        }
+        sad=VoteCount.indexOf(largest);
+        playSong();
+        console.log(sad);
+        console.log(VoteCount);
+        console.log(firstpart);
+        console.log(SecondPart);
+    }//make something called respse
+
+	function httpPost(theUrl, data){
+        //document.write(theUrl);
+        var xmlHttp = null;
+        xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("POST", theUrl, false);
+		xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xmlHttp.send(data);
+    }
+
+
+
+function  printTracks() {
+SC.initialize({
+  client_id: '23fc1bb316b1cdec30633baa077b95e2'
+});
+
+SC.get('/playlists/49022509').then(function(playlist) {
+  playlist.tracks.forEach(function(track) {
+    trackList[track.title];
+  });
+});
+    }
+
+function getCode() {
+    /*
+    SC.initialize({
+        client_id: '23fc1bb316b1cdec30633baa077b95e2'
+    });
+    var hi = SC.get('/playlists', {limit: 1});
+    console.log(hi);
+    */
+    //return '49022509';
+    MoreCode = '49022509'
+    Code = Code+'49022509';
+    //console.log(hardCode);
+
+}
+
+function authorize() {
+SC.initialize({
+  client_id: '23fc1bb316b1cdec30633baa077b95e2',
+  redirect_uri: 'https://soundcloud.com/you/sets'
+});
+
+// initiate auth popup
+SC.connect().then(function() {
+  return SC.get('/me');
+}).then(function(me) {
+  //alert('Hello, ' + me.username);
+});
+}
+  
+
+        
+function playSong() {
+SC.initialize({
+  client_id: '23fc1bb316b1cdec30633baa077b95e2'
+});
+if(Robbie == 0)    
+    {
+        Robbie++;
+        SC.oEmbed("https://soundcloud.com/henry-krinkle/stay", {
+    element: document.getElementById('widget')
+            });
+    }else{
+        SC.oEmbed("https://soundcloud.com/" + ActualSong[sad], {
+    element: document.getElementById('widget')
+            });
+    }
+
+} 
+    </script>
+</head>
+
+<body class=wallpaper style="background: url('images/bround.jpg')">
+<div id="left"></div>
+<div id="right"></div>
+<div id="top"></div>
+<div id="bottom"></div>
+  <h1>Auto-DJ</h1>
+  <h4>Host Name</h4>
+	<!--<button onclick="authorize()" class="login" type="button">Admin-Login</button>-->
+          <!--  <button onclick="printTracks()" class="login" type="button">PRINT TRACKS</button> -->
+   <!-- <button onclick="getCode()" class="login" type="button">PRINT SWAG</button>-->
+
+    <form>
+        <center>
+
+			<p id="roomName" class="visible">
+				<input type="text" style="height=100px" id="enterName" size="30" maxlength="15"/>
+				<input type="button" name="btnEnterName" id = "btnEnterName" value="Enter" onclick="submitName()" />
+			</p>
+			<p id="accessCode" style="color:white;" class="hidden">
+			</p>
+            <p id="GI" class="hidden">
+                
+				<input type="button" id="GetInfo" value="GetData" onClick="httpGet('http://localhost:8080/')">
+			</p>
+            <div id="widget" class="hidden">
+            
+            </div>
+            <br /><br /><br /><br />
+        </center>
+    </form>
+</body>
+
+</html>

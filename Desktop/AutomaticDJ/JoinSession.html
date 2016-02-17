@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" type="text/css" href="style2.css">
+<link href='https://fonts.googleapis.com/css?family=Raleway:500' rel='stylesheet' type='text/css'>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <title>Auto-DJ</title>
+<style>
+        p.hidden{
+            display: none;
+        }
+        p.visible{
+            display: block;
+        }
+    div.hidden{
+            display: none;
+        }
+    
+    div.visible
+        {
+            display: block;
+        }
+</style>
+</head>
+
+<body style="background: url('images/bround.jpg')">
+    <div id="left"></div>
+<div id="right"></div>
+<div id="top"></div>
+<div id="bottom"></div>
+  <h1>Auto-DJ</h1>
+    
+    
+    <script src="https://connect.soundcloud.com/sdk/sdk-3.0.0.js"></script>
+<script type="text/JavaScript">
+    
+var Code = "GuestCode= ";
+var GuestName = "GuestName=";
+var GuestId = "GuestId=";
+var Vote = "Vote=";
+var CorreTrack = "CorreTrack=";
+var Verify;
+var Lock = 0;
+var upVoteList = [];
+var trackList = [];
+var Output = "";
+
+function SendData()
+{
+	GuestName = GuestName + document.getElementById("txtName").value;
+	Code = Code + document.getElementById("txtCode").value + "&&" + GuestName+"&&" + GuestId+"KappaRoss";
+	httpPost("http://localhost:8080/",Code);
+	document.getElementById("codeThing").className = "hidden";
+	document.getElementById("JoinClass").className = "visible";
+}
+
+
+
+function httpGet(theUrl){
+//document.write(theUrl);
+var xmlHttp = null;
+xmlHttp = new XMLHttpRequest();
+xmlHttp.open("GET", theUrl, false);
+xmlHttp.send(null);
+Verify = xmlHttp.responseText;
+//alert(Verify)
+if(Verify == "ASDF=Yes")
+{
+document.getElementById("JoinClass").className = "hidden";
+document.getElementById("GetItButton").className = "visible";
+}else{
+alert("Please Enter a valid code!")
+	document.getElementById("codeThing").className = "visible";
+	document.getElementById("JoinClass").className = "hidden";
+}
+}//make something called respse
+
+function httpPost(theUrl, data){
+//document.write(theUrl);
+var xmlHttp = null;
+xmlHttp = new XMLHttpRequest();
+xmlHttp.open("POST", theUrl, false);
+xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+xmlHttp.send(data);
+}
+
+
+//asdasdsdsaasasasohasdghasgdfkhfdadfkdgafakfdhsafdjfgdsgfaskgfdsfdgshjgfshfdgfdsgfdhasfgdasfhdsgfdkas
+//asdfghdasgfdashkgfdhkasgfhdgfhjdasfgadsjfdasfdasghfdhasgfhfjdgashfdhjasgffdas
+//IDGI CODE IDGI CODE
+	
+
+    function httpGetVote(theUrl){
+        //document.write(theUrl);
+        var xmlHttp = null;
+        xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", theUrl, false);
+        xmlHttp.send(null);
+        document.getElementById("response").innerHTML=xmlHttp.responseText;
+    }//make something called respse*/
+
+	function httpPostVote(theUrl, data){
+        //document.write(theUrl);
+        var xmlHttp = null;
+        xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("POST", theUrl, false);
+		xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xmlHttp.send(data);
+    }
+    
+    function printTracks() {
+        SC.initialize({
+  client_id: '23fc1bb316b1cdec30633baa077b95e2'
+});
+        
+SC.get('/playlists/49022509').then(function(playlist) {
+  console.log("cake")
+      console.log(playlist)
+
+  /*var trackList = playlist.tracks.map(function(track){
+     track.title
+  })
+  */
+    for (var track in playlist.tracks) {
+  if (playlist.tracks.hasOwnProperty(track)) {
+    window.trackList.push(playlist.tracks[track].title)
+  }
+}
+  
+  
+});
+    }
+
+
+function displayStuff()
+{
+    for(i=0;i<trackList.length;i++)
+        {
+            upVoteList[i] = 0;
+        }
+    //alert(upVoteList);
+    //alert(trackList);
+ if(Lock == 0)
+ {
+  for(i=0;i<trackList.length;i++)
+  {
+   
+   Output = Output + "<p onClick='UpVote(\"" + trackList[i] +  "\")'>" +trackList[i] + "</p>"
+   document.getElementById("Bar").innerHTML = Output;
+   Lock = 1;
+  }
+ }else{
+   bubblesortHL();
+   for(i=0;i<trackList.length;i++)
+   {
+   Output += "<p onClick='UpVote(\"" + trackList[i] +  "\")'>" +trackList[i] + "</p>"
+    document.getElementById("Bar").innerHTML = Output;
+   }
+  }
+}
+
+function UpVote(theSong)
+{
+ var i = trackList.indexOf(theSong);
+ upVoteList[i] = upVoteList[i] +1;
+ Data = Vote + upVoteList + "&&" + CorreTrack + trackList + "&&" + GuestId + "UpVote" + "&&" + GuestName;
+ httpPostVote("http://localhost:8080/",Data);
+}
+
+function  bubblesortHL()
+{
+ var arraySize = upVoteList.length;
+ var sortDone;
+ do {
+  sortDone = true;
+  for (i = 0; i < arraySize-1; i++)
+   {
+    if (upVoteList[i] < upVoteList[i+1])
+    {
+  sortDone = false; 
+
+  var temp2 = upVoteList[i];
+  upVoteList[i] = upVoteList[i+1];
+  upVoteList[i+1] = temp2;
+
+  var temp = trackList[i];
+  trackList[i] = trackList[i+1];
+  trackList[i+1] = temp;
+  }}
+  } while (sortDone == false)
+   return trackList;
+}
+    </script>
+    
+    <center>
+    <p id="Bar"style="color:white;"></p>
+        </center>
+
+    <form>
+        <center>
+            <div id="codeThing" className="visible">
+            <p style="color:white; font-family: 'Raleway', sans-serif; font-size: 20px; margin-left: -185px; margin-bottom: -45px">Access Code</p>  
+            <p style="color:white; font-family: 'Raleway', sans-serif; font-size: 20px; margin-right: -85px;">Guest Name</p>
+                <p id="codeThing" class="visible">
+            <input type="text" id="txtCode" size="20" maxlength="10" />
+                <input type="text" id="txtName" size="20" maxlength="10" />
+				<input type="button" name="btnEnterCode" value="Enter" onclick="SendData()">
+            </p>
+                </div>
+			<br>
+			<p id="JoinClass" class="hidden">
+                    <input type="button" name="SADF" value="Obtain Tracks" onClick="printTracks()">
+                    <input type="button" onClick='displayStuff()' value="Display Track">
+			</p>
+
+        </center>
+    </form>
+
+</body>
+</html>

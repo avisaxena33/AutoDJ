@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+<title>I Don't Get it?</title>
+<style>
+        p.hidden{
+            display: none;
+        }
+        p.visible{
+            display: block;
+        }
+</style>
+
+<script>
+var person;
+
+function accessCode(){
+
+	person = "student";
+	window.open("JoinSession.html")
+	window.close("Start.html");
+
+}
+
+function sendCode(){
+
+	person = "teacher";
+	window.open("MakeSession.html")
+	window.close("Start.html");
+
+}
+
+
+</script>
+
+</head>
+<body>
+<form>
+<center>
+<input type=button id="makeSession" value="makeSession" onClick="sendCode()">
+<input type=button id="joinSession" value="joinSession" onClick="accessCode()">
+</center>
+</form>
+</body>
+</html>
