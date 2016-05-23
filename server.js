@@ -1,116 +1,132 @@
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
-var express = require('express'); //Module for interface
-var bodyParser = require('body-parser'); //Module for reading body in POST
-var StudentClass = require('./StudentClass');
-var TeacherClass = require('./TeacherClass');
+var express = require('express');
 var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true })); 
 app.use(bodyParser.json({ type: 'application/*+json' })); 
-var Sessions = [];
-var SessionsStudent = [];
-var PlaceHolder = 0;
-var ValidCode;
+var Rooms = [];
+var usernames = [];//{}for json data, but we use [] because of the way we store the data
+var UniqueCode = true;
+var ValidCode = false;
+var genCode;
+var NumberOfPeople = 0;
 
-//var request = require('request');
+io.on('connection', function (socket) {
 
-
-app.get('/',function(req, res) {//
-  console.log("Server Response");
-	res.set({
-		'Content-Type': 'text/html',
-		"Access-Control-Allow-Origin": "*", //"*" eventually becomes HTML front-end host URL
-		"Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept" //The CORS we wanted to get around from the beginning
-	});
-	var ASDF = "ASDF="//Yes or No value in JSON Format
-		if(ValidCode == "True")
+socket.on("Create Session", function(data){
+	genRand();
+	var roomName = genCode;
+	var Name = data.userName;
+	socket.username = userName;
+	socket.roomName = roomName;
+	socket.join(roomName);
+	usernames.push({userName: Name, roomName:genCode, rank:"Host"});
+	Rooms.push(roomName);
+	NumberOfPeople++;
+});
+	
+socket.on("join session", function(Code){
+	ValidCode = false;
+	var roomName = data.RoomName;//The code that the user enters
+	var Name = data.userName;
+	for(i=0;i<NumberOfPeople;i++)
 		{
-		ASDF = ASDF + "Yes";
-		}else{
-		ASDF = ASDF + "No";	
+			if(usernames[i]['rank'] == "Host" && usernames[i]['code'] == roomName)
+			{
+					NumberOfPeople++;
+					for(i=0;i<Rooms.length;i++)
+					{
+						if(roomName == Rooms[i])
+						{
+							socket.username = userName;
+							socket.roomName = roomName;
+							ValidCode = true;
+							usernames.push({userName:Name, roomName:roomName,rank:"User"});
+							socket.join(Rooms[i]);
+						}
+					}
+			}
 		}
-	console.log(ASDF);
-	res.send(ASDF);
-	console.log(SessionsStudent);
+		if(ValidCode == false)
+		{
+			socket.emit('Bad Code', {
+				result:false
+			});			
+		}	
 });
 
-app.post('/', function(req, res) {
-	res.set({
-		'Content-Type': 'text/html',
-		"Access-Control-Allow-Origin": "*",
-		"Access-Control-Allow-Headers":"Origin, X-Requested-With, Content-Type, Accept"
-	});
-	if(req.body.code != null)
+socket.on('disconnect', function(data){
+	for(i=0;i<usernames.length;i++)
 	{
-	code = req.body.code;//Change teacher to whatever the variable name is Ex: "teacher=Seom&butt=nice"
-	classname = req.body.className;
-	console.log("req received: " + code + classname);
-	SessionsStudent[PlaceHolder] = StudentClass();
-	SessionsStudent[PlaceHolder].StudentName = "";
-	Sessions[PlaceHolder] = TeacherClass();
-	Sessions[PlaceHolder].TeacherClassName = classname;
-	Sessions[PlaceHolder].TeacherCode = code;
-	
-	PlaceHolder++;
-	console.log(Sessions[0]);
-	code = null;
-	}else if (req.body.CheckCode != null)
-	{
-		console.log("Checkpoint 1");
-		for(a = 0; a < PlaceHolder; a++)
+		if(usernames[i]['userName'] == socket.username)
 		{
-			console.log("Checkpoint 2");
-			if(parseInt(Sessions[a].TeacherCode) != req.body.CheckCode)
+			if(usernames[i]['rank'] == 'User')
 			{
-			console.log(Sessions[a].TeacherCode);
-			console.log("Failure " + a);
-			}else{
-				SessionsStudent[a].StudentName = req.body.studentName;
-				ValidCode = "True";
+				NumberOfGuests--;
+			}else if(usernames[i]['rank'] == 'Host')
+			{
+				for(j=0;j<Rooms.length;j++)
+				{
+					if(Rooms[j] == usernames[i]['code'])
+					{
+					io.sockets.emit('end of session',{
+						Code:usernames[i]['code']
+					})
+					Rooms.splice(j,1);
+					NumberOfGuests--;
+					}
+				}
+			}
+			usernames.splice(i,1);
+		}
+	}
+	socket.leave(socket.room);
+});
+
+	
+	
+function genRand()	{
+	genCode = Math.floor(Math.random() * 60000);
+	var HostNumber = 0;
+		for(i=0;i<usernames.length;i++)
+		{
+			if(usernames[i]['rank'] == 'Host')
+			{
+				HostNumber++;
 			}
 		}
 
-		CheckCode = null;
-	}else if(req.body.HelpState != null)
-	{
-	console.log("I am 10/10");
-	for(a = 0; a < PlaceHolder; a++)
+		for(i=0;i<HostNumber;i++)
 		{
-			console.log("eSports Seroni");
-			if(SessionsStudent[a].StudentName != req.body.studentName)
+			if(usernames[i]['rank'] == 'Host')
 			{
-				console.log("eSports Fail" + a);
-				console.log(SessionsStudent[a].StudentName);
-			}else{
-				SessionsStudent[a].StudentResponse = req.body.HelpState;
-				console.log(SessionsStudent[a].StudentResponse)
-				 }
+				if(usernames[i]['code'] == genCode)
+				{
+				UniqueCode = false;
+				break;
+				}
+			}
 		}
-		console.log("eSports Seroni is Jack")
-	}
-  res.send();
-});
+		if(UniqueCode == false)
+		{
+			UniqueCode = true;
+			genRand();
+		}
+}		
 
-//404 Response
 function send404Response(response){
 	response.writeHead(404, {"Content-Type": "text/plain"});
 	response.write("Error 404: Page not found!");
 	response.end();
 };
 
+app.use(express.static(__dirname + '/public'));
 
-app.listen(8080, function() {
-  console.log('Server running at http://127.0.0.1:8080/'); //Hosted locally
+server.listen(process.env.PORT || 3000, function () {
+  console.log('Server listening at port %d 3000');
 });
-
-		//var i = Sessions.indexOf(req.body.CheckCode);
-		//console.log("Checkpoint 2");
-		//if(i == -1)
-		//{
-			//console.log("Checkpoint 3");
-			//domain = "Error";
-			//app.get();
-		//}else{
-			//console.log("Checkpoint 4");
-		//}
+});
