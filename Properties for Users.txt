@@ -1,0 +1,9 @@
+Guest Props
+GuestName:"",
+GuestResponse:0,
+GuestCode:"",
+GuestCorre:""
+
+host
+		DJSessionName:"",
+		DJCode:""

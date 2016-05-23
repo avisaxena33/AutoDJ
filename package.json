@@ -1,0 +1,19 @@
+{
+  "name": "AutoDJ",
+  "version": "0.1.0",
+  "description": "Automatic Song Voter for parties with bad music",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "latest",
+    "express": "^4.10.2",
+    "socket.io": "^1.4.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "Sean Kim"
+}
