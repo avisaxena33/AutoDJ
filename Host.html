@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <title>Auto-DJ</title>
+    <style>
+        p.hidden{
+            display: none;
+        }
+        p.visible{
+            display: block;
+        }
+ </style>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="api.js"></script>
+	<script src="https://connect.soundcloud.com/sdk/sdk-3.0.0.js"></script>
+
+	<script type="text/JavaScript">
+	SC.initialize({
+		client_id: 'YOUR_CLIENT_ID'
+	});
+	https://developers.soundcloud.com/docs/api/reference#tracks
+	(document).ready(function() {
+		SC.get('/tracks', { genres: 'foo' }, function(tracks) {//genre is a type of Filter
+		$(tracks).each(function(index, track) {
+			$('#results').append($('<li></li>').html(track.title + ' - ' + track.genre));
+			});
+		});
+	});
+	</script>
+</head>
+<body>
+<form>
+        <center>
+
+			<p id="roomName" class="visible">
+				<input type="text" style="height=100px" id="enterName" size="30" maxlength="15"/>
+				<input type="button" name="btnEnterName" id = "btnEnterName" value="Enter" onclick="submitName()" />
+			</p>
+			<p id="accessCode" style="color:white;" class="hidden">
+			</p>
+            <p id="GI" class="hidden">
+                
+				<input type="button" id="GetInfo" value="GetData" onClick="httpGet('http://localhost:8080/')">
+			</p>
+            <div id="widget" class="hidden">
+            
+            </div>
+            <br /><br /><br /><br />
+        </center>
+    </form>
+</body>
+</html>

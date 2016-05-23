@@ -53,10 +53,11 @@ socket.on("join session", function(Code){
 		}
 		if(ValidCode == false)
 		{
-			socket.emit('Bad Code', {
+			socket.emit('Invalid Code', {
 				result:false
 			});			
-		}	
+		}
+		socket.emit('user recieve code', roomName);		
 });
 
 socket.on('disconnect', function(data){
@@ -87,7 +88,9 @@ socket.on('disconnect', function(data){
 	socket.leave(socket.room);
 });
 
+socket.on('upVote',function(data){
 	
+});
 	
 function genRand()	{
 	genCode = Math.floor(Math.random() * 60000);
