@@ -1,12 +1,31 @@
 <!DOCTYPE html>
-https://www.codecademy.com/courses/javascript-intermediate-en-txGOj/0/3?curriculum_id=50ecb9bedc5e3250c40000c6#
 <html>
 	<head>
-        <script src="//connect.soundcloud.com/sdk.js"></script>
-        <script src="script.js"></script>
+        <script src="https://connect.soundcloud.com/sdk/sdk-3.0.0.js"></script>
+		<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script>
+		SC.initialize({
+  client_id: '340f063c670272fac27cfa67bffcafc4'
+});
+
+$(document).ready(function() {
+    SC.stream('/tracks/293', function(sound){
+ $('#start').click(function(e) {
+    e.preventDefault();
+    sound.start();
+  });
+  $('#stop').click(function(e) {
+    e.preventDefault();
+    sound.stop();
+  });
+    });
+
+});
+</script>
 	</head>
-	<body>
-        <a href="#" class="connect">Connect with SoundCloud</a>
-        <p>Hello, your name is <span id="username"></span></p>
-	</body>
+    <body>
+        <a id="start">Start</a>
+        <a id="stop">Stop</a>
+    </body>
+
 </html>
